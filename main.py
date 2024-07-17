@@ -68,15 +68,16 @@ def tabela_vendas(options):
         df_vendas["Passaportes"] = passaportes  
         df_vendas["Tipo"] = tipo
         df_vendas['Responsavel'] = df_vendas['Responsavel'].astype(str)
-        df_vendas['Data/Hora'] = df_vendas['Data/Hora'].dt.strftime('%d/%m/%Y - %H:%M:%S')
+        
         # df_vendas['valor'] = df_vendas['Responsavel'].astype(str)
         try:  
-            df_vendas=df_vendas[(df_vendas["Data/Hora"]>=d[0]) & (df_vendas["Data/Hora"]<=d[1])]
+            df_vendas=df_vendas[(df_vendas["Data/Hora"].dt.date>=d[0]) & (df_vendas["Data/Hora"].dt.date<=d[1])]
+            df_vendas['Data/Hora'] = df_vendas['Data/Hora'].dt.strftime('%d/%m/%Y - %H:%M:%S')
         except:
             pass    
         if buscar:
             st.dataframe(df_vendas.query("Passaportes.str.contains(@inputbot)"),hide_index=True,width=1200,height=500)
-        if filtrar:
+        elif filtrar:
             regex_pattern = '|'.join(options)  # Cria um padrão regex que combina todas as opções selecionadas
             st.dataframe(df_vendas[df_vendas["Tipo"].str.contains(regex_pattern)], hide_index=True, width=1200, height=500)
 
