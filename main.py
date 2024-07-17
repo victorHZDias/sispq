@@ -36,7 +36,7 @@ if 'email' not in st.session_state:
 with st.sidebar:
     st.image("./static/logoParque-transformed.png",width=200)
     inputbot=st.text_input("Pesquisa Passaporte")
-    buscar=st.button("Buscar", type="primary")
+    # buscar=st.button("Buscar", type="primary")
     
     today = dt.datetime.now()
     next_year = today.year + 1
@@ -75,7 +75,7 @@ def tabela_vendas(options):
             df_vendas['Data/Hora'] = df_vendas['Data/Hora'].dt.strftime('%d/%m/%Y - %H:%M:%S')
         except:
             pass    
-        if buscar:
+        if inputbot:
             st.dataframe(df_vendas.query("Passaportes.str.contains(@inputbot)"),hide_index=True,width=1200,height=500)
         elif filtrar:
             regex_pattern = '|'.join(options)  # Cria um padrão regex que combina todas as opções selecionadas
