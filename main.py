@@ -16,8 +16,6 @@ def limpar_campos():
     st.session_state['responsavel'] = ""
     st.session_state['num_criancas'] = 1
     st.session_state['criancas'] = []
-    st.session_state['cpf'] = ""
-    st.session_state['email'] = ""
 
 # Inicializa o Session State para os campos do formulário
 if 'telefone' not in st.session_state:
@@ -28,10 +26,6 @@ if 'num_criancas' not in st.session_state:
     st.session_state['num_criancas'] = 1
 if 'criancas' not in st.session_state:
     st.session_state['criancas'] = []
-if 'cpf' not in st.session_state:
-    st.session_state['cpf'] = ""
-if 'email' not in st.session_state:    
-    st.session_state['email'] = ""
     
 with st.sidebar:
     st.image("./static/logoParque-transformed.png",width=200)
@@ -76,13 +70,13 @@ def tabela_vendas(options):
         except:
             pass    
         if inputbot:
-            st.dataframe(df_vendas.query("Passaportes.str.contains(@inputbot)"),hide_index=True,width=1200,height=500)
+            st.dataframe(df_vendas.query("Passaportes.str.contains(@inputbot)"),hide_index=True,width=1300,height=500)
         elif filtrar:
             regex_pattern = '|'.join(options)  # Cria um padrão regex que combina todas as opções selecionadas
-            st.dataframe(df_vendas[df_vendas["Tipo"].str.contains(regex_pattern)], hide_index=True, width=1200, height=500)
+            st.dataframe(df_vendas[df_vendas["Tipo"].str.contains(regex_pattern)], hide_index=True, width=1300, height=500)
 
         else:
-            st.dataframe(df_vendas,hide_index=True,width=1000,height=500)
+            st.dataframe(df_vendas,hide_index=True,width=1300,height=500)
     else:   
         st.write("Nenhuma venda registrada hoje.")
 
@@ -123,20 +117,14 @@ with tab1:
                     responsavel = cliente[1]
                     criancas_existentes = cliente[2] if cliente[2] else []
                     num_criancas = len(criancas_existentes)
-                    cpf=cliente[3]
-                    email=cliente[4]
                 else:
                     responsavel = ""
                     criancas_existentes = []
                     num_criancas = 1
-                    cpf=""
-                    email= ""
             else:
                 responsavel = ""
                 criancas_existentes = []
                 num_criancas = 1
-                cpf=""
-                email= ""
                 
             # Input para quantidade de crianças (valor inicial 1)
             num_criancas = st.number_input("Número de Crianças", min_value=1, step=1, value=num_criancas)
@@ -145,8 +133,6 @@ with tab1:
 
                 # Preenche o campo de responsável
                 responsavel = st.text_input("Nome do Responsável", value=responsavel)
-                cpf = st.text_input("Cpf do Responsável", value=cpf)
-                email = st.text_input("Email do Responsável", value=email)
 
                 if criancas_existentes:
                     num_criancas = len(criancas_existentes)
@@ -180,7 +166,7 @@ with tab1:
                     try:
                         criancas_input = json.dumps(criancas)
                         
-                        inserir_venda(telefone, responsavel, criancas_input,cpf,email)
+                        inserir_venda(telefone, responsavel, criancas_input)
                         st.success("Venda registrada com sucesso!")
                         # Limpa o formulário após o registro
                         placeholder_telefone.empty()

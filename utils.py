@@ -98,7 +98,7 @@ def deletar_usuario(id):
         with conn.cursor() as cur:
             cur.execute("DELETE FROM acessos WHERE id = %s", (id,))
 
-def inserir_venda(telefone, responsavel, criancas,cpf,email):
+def inserir_venda(telefone, responsavel, criancas):
     with conectar_db() as conn:
         with conn.cursor() as cur:
         # Verifica se o cliente já existe
@@ -108,8 +108,8 @@ def inserir_venda(telefone, responsavel, criancas,cpf,email):
             # Se o cliente não existe, insere na tabela clientes
             if not cliente_existe:
                 cur.execute(
-                    "INSERT INTO clientes (telefone, responsavel, crianca,cpf,email) VALUES (%s, %s, %s,%s,%s)",
-                    (telefone, responsavel, criancas,cpf,email),
+                    "INSERT INTO clientes (telefone, responsavel, crianca) VALUES (%s, %s, %s)",
+                    (telefone, responsavel, criancas),
                 )
 
             criancas = json.loads(criancas)
@@ -130,15 +130,15 @@ def inserir_venda(telefone, responsavel, criancas,cpf,email):
                 (telefone, dt.datetime.now(), criancas_json, responsavel, valor_total),
             )
             cur.execute(
-                "UPDATE clientes SET crianca = %s, cpf = %s, email = %s WHERE telefone = %s",
-                (criancas_json, cpf,email, telefone),
+                "UPDATE clientes SET crianca = %s WHERE telefone = %s",
+                (criancas_json, telefone),
             )
         conn.commit()
     
 def buscar_cliente(telefone):
     with conectar_db() as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT telefone, responsavel, crianca,cpf,email FROM clientes WHERE telefone = %s", (telefone,))  # Seleciona telefone em vez de id
+            cur.execute("SELECT telefone, responsavel, crianca FROM clientes WHERE telefone = %s", (telefone,))  # Seleciona telefone em vez de id
             cliente = cur.fetchone()
             return cliente
     
