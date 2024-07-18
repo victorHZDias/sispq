@@ -70,15 +70,14 @@ def tabela_vendas(options):
         except:
             pass    
         if inputbot:
-            st.dataframe(df_vendas.query("Passaportes.str.contains(@inputbot)"),hide_index=True,width=1300,height=500)
+            return df_vendas.query("Passaportes.str.contains(@inputbot)")
         elif filtrar:
             regex_pattern = '|'.join(options)  # Cria um padrão regex que combina todas as opções selecionadas
-            st.dataframe(df_vendas[df_vendas["Tipo"].str.contains(regex_pattern)], hide_index=True, width=1300, height=500)
-
+            return df_vendas[df_vendas["Tipo"].str.contains(regex_pattern)]
         else:
-            st.dataframe(df_vendas,hide_index=True,width=1300,height=500)
+            return df_vendas
     else:   
-        st.write("Nenhuma venda registrada hoje.")
+        return st.write("Nenhuma venda registrada hoje.")
 
 tab1, tab2 = st.tabs([":family: Cadastro", ":memo: Lista"])
 
@@ -182,6 +181,21 @@ with tab2:
     col1,col2,col3=st.columns([1,7,1])
     
     with col2:
+        tabela =tabela_vendas(options)
+        df=tabela
+        df['Tipo'] = tabela['Tipo'].astype(str).str.split(',')
+
+        # Explodir as listas
+        df_exploded = df.explode('Tipo')
+
+        # Contar valores
+        contagem = len(df_exploded['Tipo'])
+        
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Passaportes", f"{contagem}")
+        col2.metric("Valor Total", f"R${tabela['Valor Total'].sum():,.2f}")
+       
+                
         st.markdown(
             """
             <h1 style='text-align: center;'>
@@ -197,5 +211,6 @@ with tab2:
             '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />',
             unsafe_allow_html=True,
         )
-        tabela_vendas(options)
+        st.dataframe(tabela,hide_index=True,width=1300,height=500)
+        
  
