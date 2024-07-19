@@ -127,7 +127,7 @@ def inserir_venda(telefone, responsavel, criancas):
             # Inserir a venda na tabela vendas (com o valor total e criancas em JSON)
             cur.execute(
                 "INSERT INTO vendas (telefone, data_venda, crianca, responsavel, valor) VALUES (%s, %s, %s, %s, %s)",
-                (telefone, dt.datetime.now(), criancas_json, responsavel, valor_total),
+                (telefone, dt.datetime.now().strftime(r"%Y-%m-%d %H:%M:%S"), criancas_json, responsavel, valor_total),
             )
             cur.execute(
                 "UPDATE clientes SET crianca = %s WHERE telefone = %s",
@@ -182,3 +182,55 @@ def buscar_vendas_hoje():
                 tipos_criancas.append(", ".join(tipos_cri))  # Adiciona os tipos à lista separada
 
             return vendas_lista, nomes_tipos_criancas, passaportes_criancas,tipos_criancas
+        
+def deletar_venda(id_venda):
+    with conectar_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM vendas WHERE id = %s", (int(id_venda),))  # Converter para int
+            conn.commit()
+            if cur.rowcount > 0:
+                return st.success(f"Item {id_venda} Deletado")  # Deletado com sucesso
+            else:
+                return st.error('This is an error', icon="🚨") # ID não encontrado
+
+def atualizar_venda(selected_row,valorPass):
+    with conectar_db() as conn:
+        with conn.cursor() as cur:
+
+            # Extrai os dados da linha selecionada
+            id_venda = int(selected_row[0])
+            telefone = selected_row[1]
+            responsavel = selected_row[3]
+            valor_total = int(valorPass)
+            criancas = selected_row[5]
+            passaportes = selected_row[6]
+            tipo = selected_row[7]
+
+            # Converte a lista de tipos para string
+            tipo = tipo[0] if isinstance(tipo, list) else tipo
+
+            # Cria a lista de dicionários para o JSON
+            criancas_json = json.dumps([
+                {
+                    "nome": criancas,
+                    "tipo": tipo,
+                    "valor": valor_total,
+                    "passaporte": passaportes,
+                }
+            ])
+
+            # Atualiza a venda na tabela vendas
+            cur.execute(
+                """
+                UPDATE vendas 
+                SET telefone = %s, responsavel = %s, crianca = %s, valor = %s
+                WHERE id = %s
+                """,
+                (telefone, responsavel, criancas_json, valor_total, id_venda),
+            )
+            cur.execute(
+                "UPDATE clientes SET crianca = %s WHERE telefone = %s",
+                (criancas_json, telefone),
+            )
+
+            conn.commit()

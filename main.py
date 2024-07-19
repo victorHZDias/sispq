@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
-from utils import inserir_venda, buscar_cliente,buscar_vendas_hoje,buscar_passaporte
+from utils import inserir_venda, buscar_cliente,buscar_vendas_hoje,buscar_passaporte,deletar_venda,atualizar_venda
 import json
 import time
 import datetime as dt
+import streamlit.components.v1 as components
 
 st.set_page_config(
     page_title="Parque Havan",
@@ -47,7 +48,7 @@ with st.sidebar:
     )
     options = st.multiselect(
     "Selecione o Tipo",
-    ["REGULAR", "AUTISTA", "ANIVERSARIO", "LOJA"],
+    ["REGULAR", "AUTISTA", "ANIVERSARIO", "LOJA","BONUS"],
     ["ANIVERSARIO"])
     filtrar=st.button("Filtrar", type="primary")
     
@@ -211,6 +212,43 @@ with tab2:
             '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />',
             unsafe_allow_html=True,
         )
-        st.dataframe(tabela,hide_index=True,width=1300,height=500)
+        # st.dataframe(tabela,hide_index=True,width=1300,height=500)
+        tabela['Marque para Editar']=False
         
- 
+        edited_df = st.data_editor(tabela,hide_index=True)
+        selected_rows = edited_df.loc[edited_df['Marque para Editar']]
+
+        #         # Verificar se alguma linha está selecionada
+        selected_rows = edited_df.loc[edited_df['Marque para Editar']]
+        # st.write(selected_row[0])
+        if not selected_rows.empty:
+            selected_row = selected_rows.iloc[0]
+            valorPass=buscar_passaporte(selected_row[7][0])
+            # deletar = st.button("DELETAR")
+
+            if st.button("DELETAR"):
+                st.warning("A linha será Deletada")
+                time.sleep(2)
+                deletar_venda(selected_row[0])
+                st.rerun()
+                # confirmed = st.button("Confirmar")
+                # cancelar = st.button("Cancelar")
+                # if confirmed:
+                #     deletar_venda(selected_row[0])
+                #     st.rerun()
+                # elif cancelar:
+                #     st.warning("Operação cancelada!")
+                #     pass
+            if st.button("Atualizar"):
+        # Verifica se alguma linha está selecionada
+                if not selected_rows.empty:
+                    selected_row = selected_rows.iloc[0]
+                    
+                    # Chama a função para atualizar a venda
+                    atualizar_venda(selected_row,valorPass)
+
+                    st.success("Dados atualizados com sucesso!")
+   
+                else:
+                    st.warning("Selecione uma linha para atualizar.")
+
